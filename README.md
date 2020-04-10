@@ -1,3 +1,3 @@
-# gitlab-mirror-maker
+# GitLab Mirror Maker
 
-GitLab mirror maker
+Automatically mirror your repositories from GitLab to GitHub.
