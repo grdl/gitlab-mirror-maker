@@ -1,30 +1,84 @@
 import click
 import requests
 from pprint import pprint
+import logging
+import os
+
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"),
+                    format='%(asctime)s [%(levelname)s] %(message)s')
+log = logging.getLogger(__name__)
 
 
 @click.command()
 @click.option('--github-token', required=True, help='GitHub token')
 @click.option('--gitlab-token', required=True, help='GitLab token')
 @click.option('--github-user', help='GitHub username. If not provided your GitLab username will be used.')
-def mirrormaker(github_token, gitlab_token, github_user):
+@click.option('--dry-run', is_flag=True, help="If enabled, GitHub repositories and GitLab mirrors won't be created")
+def mirrormaker(github_token, gitlab_token, github_user, dry_run):
+    log.info('Getting your public GitLab repositories')
     gitlab_repos = get_gitlab_repos(gitlab_token)
 
     if not gitlab_repos:
+        log.info(
+            'There are no public repositories in your GitLab account. Exiting now.')
         return
 
+    log.info('Getting your public GitHub repositories')
     github_repos = get_github_repos(github_token)
 
+    log.info('Checking what needs to be created')
+
+    # actions is a list of gitlab repos and actions to perform
+    # eg: {'gitlab_repo: '', 'create_github': True, 'create_mirror': True}
+    actions = []
+
     for gitlab_repo in gitlab_repos:
-        mirrors = get_mirrors(gitlab_token, gitlab_repo)
+        action = process_gitlab_repo(gitlab_token, gitlab_repo, github_repos)
+        actions.append(action)
 
-        if mirror_exist(github_repos, mirrors):
-            continue
+    # Print summary of action to perform
+    for action in actions:
+        if action["create_github"] and action["create_mirror"]:
+            message = 'will create github repository and mirror'
+        elif not action["create_github"] and action["create_mirror"]:
+            message = 'will create mirror (github repository already created)'
+        else:
+            message = 'already mirrored'
 
-        if not github_repo_exists(github_repos, gitlab_repo['path_with_namespace']):
-            create_github_repo(github_token, gitlab_repo)
+        log.info(
+            f'{action["gitlab_repo"]["path_with_namespace"]:40} {message}')
 
-        create_mirror(gitlab_token, github_token, gitlab_repo, github_user)
+    if dry_run:
+        log.info(
+            'Run without the --dry-run flag to actually create repositories and mirrors. Exiting now.')
+        return
+
+    # Performing the actions
+    for action in actions:
+        if action["create_github"]:
+            log.info(f'Creating GitHub repository: {gitlab_repo["name"]}')
+            create_github_repo(github_token, action["gitlab_repo"])
+
+        if action["create_mirror"]:
+            log.info(f'Creating mirror: {gitlab_repo["name"]}')
+            create_mirror(gitlab_token, github_token,
+                          action["gitlab_repo"], github_user)
+
+
+def process_gitlab_repo(gitlab_token, gitlab_repo, github_repos):
+    action = {'gitlab_repo': gitlab_repo,
+              'create_github': True, 'create_mirror': True}
+
+    mirrors = get_mirrors(gitlab_token, gitlab_repo)
+    if mirror_exist(github_repos, mirrors):
+        action['create_github'] = False
+        action['create_mirror'] = False
+        return action
+
+    if github_repo_exists(github_repos, gitlab_repo['path_with_namespace']):
+        action['create_github'] = False
+
+    return action
 
 
 def get_gitlab_repos(gitlab_token):
