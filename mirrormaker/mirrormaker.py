@@ -39,9 +39,11 @@ def mirrormaker(github_token, gitlab_token, github_user, dry_run):
     # Print summary of action to perform
     for action in actions:
         if action["create_github"] and action["create_mirror"]:
-            message = 'will create github repository and mirror'
+            message = 'will create GitHub repository and mirror'
         elif not action["create_github"] and action["create_mirror"]:
-            message = 'will create mirror (github repository already created)'
+            message = 'will create only mirror (GitHub repository already created)'
+        elif action["create_github"] and not action["create_mirror"]:
+            message = 'will create only GitHub repo (mirror already configured)'
         else:
             message = 'already mirrored'
 
@@ -56,11 +58,12 @@ def mirrormaker(github_token, gitlab_token, github_user, dry_run):
     # Performing the actions
     for action in actions:
         if action["create_github"]:
-            log.info(f'Creating GitHub repository: {gitlab_repo["name"]}')
+            log.info(
+                f'Creating GitHub repository: {action["gitlab_repo"]["name"]}')
             create_github_repo(github_token, action["gitlab_repo"])
 
         if action["create_mirror"]:
-            log.info(f'Creating mirror: {gitlab_repo["name"]}')
+            log.info(f'Creating mirror: {action["gitlab_repo"]["name"]}')
             create_mirror(gitlab_token, github_token,
                           action["gitlab_repo"], github_user)
 
@@ -124,7 +127,7 @@ def get_mirrors(gitlab_token, gitlab_repo):
 def mirror_exist(github_repos, mirrors):
     # Check if any of the mirrors points to any of public github repos
     for mirror in mirrors:
-        if any(mirror['url'].endswith(f'{repo["full_name"]}.git') for repo in github_repos):
+        if any(mirror['url'] and mirror['url'].endswith(f'{repo["full_name"]}.git') for repo in github_repos):
             return True
 
     return False
@@ -139,7 +142,7 @@ def create_github_repo(github_token, gitlab_repo):
     headers = {'Authorization': f'Bearer {github_token}'}
 
     data = {
-        'name': gitlab_repo['name'],
+        'name': gitlab_repo['path'],
         'description': f'{gitlab_repo["description"]} [mirror]',
         'homepage': gitlab_repo['web_url'],
         'private': False,
@@ -165,7 +168,7 @@ def create_mirror(gitlab_token, github_token, gitlab_repo, github_user):
         github_user = gitlab_repo['owner']['username']
 
     data = {
-        'url': f'https://{github_user}:{github_token}@github.com/{github_user}/{gitlab_repo["name"]}.git',
+        'url': f'https://{github_user}:{github_token}@github.com/{github_user}/{gitlab_repo["path"]}.git',
         'enabled': True
     }
 
