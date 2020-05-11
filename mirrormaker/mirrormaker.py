@@ -1,10 +1,12 @@
 import click
 import requests
+from . import __version__
 from . import gitlab
 from . import github
 
 
 @click.command()
+@click.version_option(version=__version__)
 @click.option('--github-token', required=True, help='GitHub token')
 @click.option('--gitlab-token', required=True, help='GitLab token')
 @click.option('--github-user', help='GitHub username. If not provided your GitLab username will be used.')

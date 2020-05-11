@@ -19,7 +19,7 @@ packages = [
 gitlab-mirror-maker = "mirrormaker.mirrormaker:mirrormaker"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.8"
 requests = "^2.23.0"
 click = "^7.1.1"
 
