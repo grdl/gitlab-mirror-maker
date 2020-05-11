@@ -1,6 +1,5 @@
 [tool.poetry]
 name = "gitlab-mirror-maker"
-# Update also __version__ (https://github.com/python-poetry/poetry/issues/144)
 version = "0.2.0"
 description = "Automatically mirror your repositories from GitLab to GitHub"
 authors = ["Grzegorz Dlugoszewski <pypi@grdl.dev>"]

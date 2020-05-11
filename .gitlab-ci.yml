@@ -3,7 +3,7 @@ stages:
   - publish
 
 .python_defaults:
-  image: python:3.6-slim
+  image: python:3.8-slim
 
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
@@ -43,10 +43,10 @@ publish_docker:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
-  # TODO: automate reading version
   script:
-    - docker build -t $CI_REGISTRY_IMAGE:0.2.0 -t $CI_REGISTRY_IMAGE:latest .
-    - docker push $CI_REGISTRY_IMAGE:0.2.0
+    - VERSION=`sed -n 's/^version = //p' pyproject.toml`
+    - docker build -t $CI_REGISTRY_IMAGE:$VERSION -t $CI_REGISTRY_IMAGE:latest .
+    - docker push $CI_REGISTRY_IMAGE:$VERSION
     - docker push $CI_REGISTRY_IMAGE:latest
 
   only:
