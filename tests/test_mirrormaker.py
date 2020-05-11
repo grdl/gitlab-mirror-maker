@@ -12,7 +12,7 @@ def test_filter_forked_repos():
     responses.add(responses.GET, 'https://api.github.com/user/repos?type=public',
                   json=resp_json, status=200)
 
-    github_repos = github.get_repos('')
+    github_repos = github.get_repos()
 
     assert len(github_repos) == 1
     assert github_repos[0]['name'] == 'repo_2'
@@ -23,7 +23,7 @@ def test_filter_no_repos():
     responses.add(responses.GET, 'https://api.github.com/user/repos?type=public',
                   json=[], status=200)
 
-    github_repos = github.get_repos('')
+    github_repos = github.get_repos()
 
     assert len(github_repos) == 0
 

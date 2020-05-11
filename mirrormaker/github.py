@@ -1,9 +1,11 @@
 import requests
 
+token = ''
 
-def get_repos(github_token):
+
+def get_repos():
     url = 'https://api.github.com/user/repos?type=public'
-    headers = {'Authorization': f'Bearer {github_token}'}
+    headers = {'Authorization': f'Bearer {token}'}
 
     try:
         r = requests.get(url, headers=headers)
@@ -19,9 +21,9 @@ def repo_exists(github_repos, repo_slug):
     return any(repo['full_name'] == repo_slug for repo in github_repos)
 
 
-def create_repo(github_token, gitlab_repo):
+def create_repo(gitlab_repo):
     url = 'https://api.github.com/user/repos'
-    headers = {'Authorization': f'Bearer {github_token}'}
+    headers = {'Authorization': f'Bearer {token}'}
 
     data = {
         'name': gitlab_repo['path'],

@@ -1,9 +1,11 @@
 import requests
 
+token = ''
 
-def get_repos(gitlab_token):
+
+def get_repos():
     url = f'https://gitlab.com/api/v4/projects?visibility=public&owned=true&archived=false'
-    headers = {'Authorization': f'Bearer {gitlab_token}'}
+    headers = {'Authorization': f'Bearer {token}'}
 
     try:
         r = requests.get(url, headers=headers)
@@ -14,9 +16,9 @@ def get_repos(gitlab_token):
     return r.json()
 
 
-def get_mirrors(gitlab_token, gitlab_repo):
+def get_mirrors(gitlab_repo):
     url = f'https://gitlab.com/api/v4/projects/{gitlab_repo["id"]}/remote_mirrors'
-    headers = {'Authorization': f'Bearer {gitlab_token}'}
+    headers = {'Authorization': f'Bearer {token}'}
 
     try:
         r = requests.get(url, headers=headers)
@@ -36,9 +38,9 @@ def mirror_exists(github_repos, mirrors):
     return False
 
 
-def create_mirror(gitlab_token, github_token, gitlab_repo, github_user):
+def create_mirror(github_token, gitlab_repo, github_user):
     url = f'https://gitlab.com/api/v4/projects/{gitlab_repo["id"]}/remote_mirrors'
-    headers = {'Authorization': f'Bearer {gitlab_token}'}
+    headers = {'Authorization': f'Bearer {token}'}
 
     # If github-user is not provided use the gitlab username
     if not github_user:
