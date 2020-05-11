@@ -1,12 +1,6 @@
 import click
 import requests
 from pprint import pprint
-import logging
-import os
-
-logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"),
-                    format='%(asctime)s [%(levelname)s] %(message)s')
-log = logging.getLogger(__name__)
 
 
 @click.command()
@@ -15,26 +9,24 @@ log = logging.getLogger(__name__)
 @click.option('--github-user', help='GitHub username. If not provided your GitLab username will be used.')
 @click.option('--dry-run', is_flag=True, help="If enabled, GitHub repositories and GitLab mirrors won't be created")
 def mirrormaker(github_token, gitlab_token, github_user, dry_run):
-    log.info('Getting your public GitLab repositories')
+    click.echo('Getting your public GitLab repositories')
     gitlab_repos = get_gitlab_repos(gitlab_token)
 
     if not gitlab_repos:
-        log.info(
-            'There are no public repositories in your GitLab account. Exiting now.')
+        click.echo('There are no public repositories in your GitLab account. Exiting now.')
         return
 
-    log.info('Getting your public GitHub repositories')
+    click.echo('Getting your public GitHub repositories')
     github_repos = get_github_repos(github_token)
-
-    log.info('Checking what needs to be created')
 
     # actions is a list of gitlab repos and actions to perform
     # eg: {'gitlab_repo: '', 'create_github': True, 'create_mirror': True}
     actions = []
 
-    for gitlab_repo in gitlab_repos:
-        action = process_gitlab_repo(gitlab_token, gitlab_repo, github_repos)
-        actions.append(action)
+    with click.progressbar(gitlab_repos, label='Checking if mirrors already exist', show_eta=False) as bar:
+        for gitlab_repo in bar:
+            action = process_gitlab_repo(gitlab_token, gitlab_repo, github_repos)
+            actions.append(action)
 
     # Print summary of action to perform
     for action in actions:
@@ -47,30 +39,25 @@ def mirrormaker(github_token, gitlab_token, github_user, dry_run):
         else:
             message = 'already mirrored'
 
-        log.info(
-            f'{action["gitlab_repo"]["path_with_namespace"]:40} {message}')
+        click.echo(f'{action["gitlab_repo"]["path_with_namespace"]:40} {message}')
 
     if dry_run:
-        log.info(
-            'Run without the --dry-run flag to actually create repositories and mirrors. Exiting now.')
+        click.echo('Run without the --dry-run flag to actually create repositories and mirrors. Exiting now.')
         return
 
     # Performing the actions
     for action in actions:
         if action["create_github"]:
-            log.info(
-                f'Creating GitHub repository: {action["gitlab_repo"]["name"]}')
+            click.echo(f'Creating GitHub repository: {action["gitlab_repo"]["name"]}')
             create_github_repo(github_token, action["gitlab_repo"])
 
         if action["create_mirror"]:
-            log.info(f'Creating mirror: {action["gitlab_repo"]["name"]}')
-            create_mirror(gitlab_token, github_token,
-                          action["gitlab_repo"], github_user)
+            click.echo(f'Creating mirror: {action["gitlab_repo"]["name"]}')
+            create_mirror(gitlab_token, github_token, action["gitlab_repo"], github_user)
 
 
 def process_gitlab_repo(gitlab_token, gitlab_repo, github_repos):
-    action = {'gitlab_repo': gitlab_repo,
-              'create_github': True, 'create_mirror': True}
+    action = {'gitlab_repo': gitlab_repo, 'create_github': True, 'create_mirror': True}
 
     mirrors = get_mirrors(gitlab_token, gitlab_repo)
     if mirror_exist(github_repos, mirrors):
