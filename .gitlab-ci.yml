@@ -1,0 +1,53 @@
+stages:
+  - test
+  - publish
+
+.python_defaults:
+  image: python:3.6-slim
+
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+  cache:
+    paths:
+      - .cache/pip
+      - .venv/
+
+  before_script:
+    - python -V
+    - pip install poetry
+    - poetry --version
+    - poetry config virtualenvs.in-project true
+    - poetry install -vv
+
+test:
+  stage: test
+  extends: .python_defaults
+  script:
+    - poetry run pytest
+
+publish_pypi:
+  stage: publish
+  extends: .python_defaults
+  script:
+    - poetry publish --build --username $PYPI_USER --password $PYPI_PASSWORD
+  only:
+    - master
+
+publish_docker:
+  stage: publish
+  image: docker:19.03.1
+  services:
+    - docker:19.03.1-dind
+
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+  # TODO: automate reading version
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:0.2.0 -t $CI_REGISTRY_IMAGE:latest .
+    - docker push $CI_REGISTRY_IMAGE:0.2.0
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+  only:
+    - master

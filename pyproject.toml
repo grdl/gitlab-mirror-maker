@@ -1,12 +1,22 @@
 [tool.poetry]
 name = "gitlab-mirror-maker"
-version = "0.1.0"
-description = "GitLab Mirror Maker - Automatically mirror your repositories from GitLab to GitHub"
-authors = ["Grzegorz Dlugoszewski <g.dlugoszewski@gmail.com>"]
+# Update also __version__ (https://github.com/python-poetry/poetry/issues/144)
+version = "0.2.0"
+description = "Automatically mirror your repositories from GitLab to GitHub"
+authors = ["Grzegorz Dlugoszewski <pypi@grdl.dev>"]
+maintainers = ["Grzegorz Dlugoszewski <pypi@grdl.dev>"]
+readme = "README.md"
+license = "MIT"
+repository = "https://gitlab.com/grdl/gitlab-mirror-maker"
+keywords = ["gitlab", "github"]
+
 
 packages = [
     { include = "mirrormaker" }
 ]
+
+[tool.poetry.scripts]
+gitlab-mirror-maker = "mirrormaker.mirrormaker:mirrormaker"
 
 [tool.poetry.dependencies]
 python = "^3.6"
