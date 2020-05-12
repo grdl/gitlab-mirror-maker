@@ -61,6 +61,6 @@ publish_docker:
 scheduled_gitlab_mirror_maker:
   image: registry.gitlab.com/grdl/gitlab-mirror-maker:latest
   script:
-    - gitlab-mirror-maker
+    - --no-dry-run
   only:
     - schedules
