@@ -107,11 +107,13 @@ Instead of running the tool manually you may want to schedule it to run periodic
 Here's a `.gitlab-ci.yml` snippet you can use:
 ```yaml
 job:
-  image: registry.gitlab.com/grdl/gitlab-mirror-maker:latest
+  image: python:3.8-alpine
   script:
-    - --no-dry-run
+    - pip install gitlab-mirror-maker
+    - gitlab-mirror-maker
   only:
     - schedules
+
 ```
 
 Here's more info about creating [scheduled pipelines with GitLab CI](https://docs.gitlab.com/ee/ci/pipelines/schedules.html).

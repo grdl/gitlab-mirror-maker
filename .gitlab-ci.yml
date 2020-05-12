@@ -59,8 +59,9 @@ publish_docker:
     - schedules
 
 scheduled_gitlab_mirror_maker:
-  image: registry.gitlab.com/grdl/gitlab-mirror-maker:latest
+  image: python:3.8-alpine
   script:
-    - --no-dry-run
+    - pip install gitlab-mirror-maker
+    - gitlab-mirror-maker
   only:
     - schedules
