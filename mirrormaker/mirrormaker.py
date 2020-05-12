@@ -122,7 +122,7 @@ def perform_actions(actions, dry_run):
                 github.create_repo(action["gitlab_repo"])
 
             if action["create_mirror"]:
-                gitlab.create_mirror(github.token, action["gitlab_repo"], github.user)
+                gitlab.create_mirror(action["gitlab_repo"], github.token, github.user)
 
 
 if __name__ == '__main__':
