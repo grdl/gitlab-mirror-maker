@@ -6,7 +6,7 @@ from . import gitlab
 from . import github
 
 
-@click.command()
+@click.command(context_settings={'auto_envvar_prefix': 'MIRRORMAKER'})
 @click.version_option(version=__version__)
 @click.option('--github-token', required=True, help='GitHub authentication token')
 @click.option('--gitlab-token', required=True, help='GitLab authentication token')
@@ -99,7 +99,9 @@ def print_summary_table(actions):
         row.append(missing) if action["create_mirror"] else row.append(created)
         summary.append(row)
 
-    click.echo(tabulate(summary, headers))
+    summary.sort()
+
+    click.echo(tabulate(summary, headers) + '\n')
 
 
 def perform_actions(actions, dry_run):
@@ -125,4 +127,4 @@ def perform_actions(actions, dry_run):
 
 if __name__ == '__main__':
     # pylint: disable=no-value-for-parameter, unexpected-keyword-arg
-    mirrormaker(auto_envvar_prefix='MIRRORMAKER')
+    mirrormaker()
