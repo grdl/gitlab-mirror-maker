@@ -33,34 +33,34 @@ def test_mirror_exists():
     github_repos = [{'full_name': 'grdl/one'},
                     {'full_name': 'grdl/two'}]
 
-    assert gitlab.mirror_exists(github_repos, mirrors) == True
+    assert gitlab.mirror_target_exists(github_repos, mirrors) == True
 
     mirrors = []
     github_repos = [{'full_name': 'grdl/one'}]
 
-    assert gitlab.mirror_exists(github_repos, mirrors) == False
+    assert gitlab.mirror_target_exists(github_repos, mirrors) == False
 
     mirrors = [{'url': 'https://*****:*****@github.com/grdl/one.git'}]
     github_repos = [{'full_name': 'grdl/two'}]
 
-    assert gitlab.mirror_exists(github_repos, mirrors) == False
+    assert gitlab.mirror_target_exists(github_repos, mirrors) == False
 
     mirrors = []
     github_repos = []
 
-    assert gitlab.mirror_exists(github_repos, mirrors) == False
+    assert gitlab.mirror_target_exists(github_repos, mirrors) == False
 
     mirrors = [{'url': 'https://*****:*****@github.com/grdl/one.git'}]
     github_repos = []
 
-    assert gitlab.mirror_exists(github_repos, mirrors) == False
+    assert gitlab.mirror_target_exists(github_repos, mirrors) == False
 
     mirrors = [{'url': 'https://*****:*****@github.com/grdl/one.git'},
                {'url': 'https://*****:*****@github.com/grdl/two.git'}]
     github_repos = [{'full_name': 'grdl/two'},
                     {'full_name': 'grdl/three'}]
 
-    assert gitlab.mirror_exists(github_repos, mirrors) == True
+    assert gitlab.mirror_target_exists(github_repos, mirrors) == True
 
 
 def test_github_repo_exists():

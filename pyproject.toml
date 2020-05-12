@@ -21,6 +21,7 @@ gitlab-mirror-maker = "mirrormaker.mirrormaker:mirrormaker"
 python = "^3.8"
 requests = "^2.23.0"
 click = "^7.1.1"
+tabulate = "^0.8.7"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.4.4"
