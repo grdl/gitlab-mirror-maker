@@ -25,6 +25,8 @@ test:
   extends: .python_defaults
   script:
     - poetry run pytest
+  except:
+    - schedules
 
 publish_pypi:
   stage: publish
@@ -33,6 +35,8 @@ publish_pypi:
     - poetry publish --build --username $PYPI_USER --password $PYPI_PASSWORD
   only:
     - master
+  except:
+    - schedules
 
 publish_docker:
   stage: publish
@@ -51,3 +55,12 @@ publish_docker:
 
   only:
     - master
+  except:
+    - schedules
+
+scheduled_gitlab_mirror_maker:
+  image: registry.gitlab.com/grdl/gitlab-mirror-maker:latest
+  script:
+    - gitlab-mirror-maker
+  only:
+    - schedules
