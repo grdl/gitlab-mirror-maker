@@ -51,16 +51,18 @@ Run with `--dry-run` flag to only print the summary and don't make any changes.
 Usage: gitlab-mirror-maker [OPTIONS]
 
 Options:
-  --version                 Show the version and exit.
-  --github-token TEXT       GitHub authentication token  [required]
-  --gitlab-token TEXT       GitLab authentication token  [required]
-  --github-user TEXT        GitHub username. If not provided, your GitLab
-                            username will be used by default.
+  --version                       Show the version and exit.
+  --github-token TEXT             GitHub authentication token  [required]
+  --gitlab-token TEXT             GitLab authentication token  [required]
+  --github-user TEXT              GitHub username. If not provided, your
+                                  GitLab username will be used by default.
 
-  --dry-run / --no-dry-run  If enabled, a summary will be printed and no
-                            mirrors will be created.
+  --target-forks / --no-target-forks
+                                  Allow forks as target repos for pushing.
+  --dry-run / --no-dry-run        If enabled, a summary will be printed and no
+                                  mirrors will be created.
 
-  --help                    Show this message and exit.
+  --help                          Show this message and exit.
 ```
 
 # How it works?
