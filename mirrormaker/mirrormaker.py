@@ -12,16 +12,30 @@ from . import github
 @click.option('--gitlab-token', required=True, help='GitLab authentication token')
 @click.option('--github-user', help='GitHub username. If not provided, your GitLab username will be used by default.')
 @click.option('--dry-run/--no-dry-run', default=False, help="If enabled, a summary will be printed and no mirrors will be created.")
-def mirrormaker(github_token, gitlab_token, github_user, dry_run):
+@click.argument('repo', required=False)
+def mirrormaker(github_token, gitlab_token, github_user, dry_run, repo=None):
+    """
+    Set up mirroring of repositories from GitLab to GitHub.
+
+    By default, mirrors for all repositories owned by the user will be set up.
+
+    If the REPO argument is given, a mirror will be set up for that repository
+    only. REPO can be either a simple project name ("myproject"), in which case
+    its namespace is assumed to be the current user, or the path of a project
+    under a specific namespace ("mynamespace/myproject").
+    """
     github.token = github_token
     github.user = github_user
     gitlab.token = gitlab_token
 
-    click.echo('Getting your public GitLab repositories')
-    gitlab_repos = gitlab.get_repos()
-    if not gitlab_repos:
-        click.echo('There are no public repositories in your GitLab account.')
-        return
+    if repo:
+        gitlab_repos = [gitlab.get_repo_by_shorthand(repo)]
+    else:
+        click.echo('Getting your public GitLab repositories')
+        gitlab_repos = gitlab.get_repos()
+        if not gitlab_repos:
+            click.echo('There are no public repositories in your GitLab account.')
+            return
 
     click.echo('Getting your public GitHub repositories')
     github_repos = github.get_repos()
