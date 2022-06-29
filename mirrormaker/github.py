@@ -1,4 +1,6 @@
 import requests
+import sys
+from pprint import pprint
 
 # GitHub user authentication token
 token = ''
@@ -17,14 +19,19 @@ def get_repos():
     url = 'https://api.github.com/user/repos?type=public'
     headers = {'Authorization': f'Bearer {token}'}
 
+    repos = []
     try:
-        r = requests.get(url, headers=headers)
-        r.raise_for_status()
+        while url:
+            r = requests.get(url, headers=headers)
+            r.raise_for_status()
+            repos.extend(r.json())
+            # handle pagination
+            url = r.links.get("next", {}).get("url", None)
     except requests.exceptions.RequestException as e:
         raise SystemExit(e)
 
     # Return only non forked repositories
-    return [x for x in r.json() if not x['fork']]
+    return [x for x in repos if not x['fork']]
 
 
 def repo_exists(github_repos, repo_slug):
@@ -67,6 +74,7 @@ def create_repo(gitlab_repo):
         r = requests.post(url, json=data, headers=headers)
         r.raise_for_status()
     except requests.exceptions.RequestException as e:
+        pprint(e.response.json(), stream=sys.stderr)
         raise SystemExit(e)
 
     return r.json()
