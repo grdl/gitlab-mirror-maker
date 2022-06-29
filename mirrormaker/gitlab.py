@@ -11,7 +11,7 @@ def get_repos():
      - List of public GitLab repositories.
     """
 
-    url = f'https://gitlab.com/api/v4/projects?visibility=public&owned=true&archived=false'
+    url = 'https://gitlab.com/api/v4/projects?visibility=public&owned=true&archived=false'
     headers = {'Authorization': f'Bearer {token}'}
 
     try:
@@ -21,6 +21,41 @@ def get_repos():
         raise SystemExit(e)
 
     return r.json()
+
+
+def get_user():
+    url = 'https://gitlab.com/api/v4/user'
+    headers = {'Authorization': f'Bearer {token}'}
+
+    try:
+        r = requests.get(url, headers=headers)
+        r.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(e)
+
+    return r.json()
+
+
+def get_repo_by_shorthand(shorthand):
+    if "/" not in shorthand:
+        user = get_user()["username"]
+        namespace, project = user, shorthand
+    else:
+        namespace, project = shorthand.rsplit("/", maxsplit=1)
+
+    project_id = requests.utils.quote("/".join([namespace, project]), safe="")
+
+    url = f'https://gitlab.com/api/v4/projects/{project_id}'
+    headers = {'Authorization': f'Bearer {token}'}
+
+    try:
+        r = requests.get(url, headers=headers)
+        r.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(e)
+
+    return r.json()
+
 
 
 def get_mirrors(gitlab_repo):

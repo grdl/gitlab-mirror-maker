@@ -48,7 +48,16 @@ Run with `--dry-run` flag to only print the summary and don't make any changes.
 ### Full synopsis
 
 ```
-Usage: gitlab-mirror-maker [OPTIONS]
+Usage: gitlab-mirror-maker [OPTIONS] [REPO]
+
+  Set up mirroring of repositories from GitLab to GitHub.
+
+  By default, mirrors for all repositories owned by the user will be set up.
+
+  If the REPO argument is given, a mirror will be set up for that repository
+  only. REPO can be either a simple project name ("myproject"), in which
+  case its namespace is assumed to be the current user, or the path of a
+  project under a specific namespace ("mynamespace/myproject").
 
 Options:
   --version                 Show the version and exit.
